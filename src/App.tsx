@@ -1,5 +1,7 @@
 import * as React from "react";
+import { generateStore } from "./store/store";
 
+const store = generateStore();
 class App extends React.Component {
   public render() {
     return <div>hello</div>;
