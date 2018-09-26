@@ -1,5 +1,6 @@
-import { createStore, Reducer, combineReducers } from "redux"
+import { createStore, Reducer, combineReducers, compose } from "redux"
 import { connect } from "react-redux"
+import { Devtool } from "../Devtool"
 
 export const counterReducer: Reducer<number, any> = (state = 0, action) => {
   switch (action.type) {
@@ -10,12 +11,12 @@ export const counterReducer: Reducer<number, any> = (state = 0, action) => {
   }
   return state
 }
-
+const enhancer = compose(Devtool.instrument())
 export const generateStore = () => {
   const reducerMap = {
     counter: counterReducer
   }
-  return createStore(combineReducers(reducerMap))
+  return createStore(combineReducers(reducerMap), {}, enhancer)
 }
 
 export const simpleConnect = (Component) => {
