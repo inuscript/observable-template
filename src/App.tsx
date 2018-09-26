@@ -7,11 +7,10 @@ import * as React from "react"
 const store = generateStore()
 
 const MainInner = (props) => {
-  console.log(props)
   return (
     <div>
       hello
-      <Button>Ping</Button>
+      <button>Ping</button>
     </div>
   )
 }
