@@ -2,7 +2,7 @@
 import { generateStore, simpleConnect } from "./store/store"
 import { Provider } from "react-redux"
 import { Devtool } from "./Devtool"
-// import { Button } from "reakit"
+import * as React from "react"
 
 const store = generateStore()
 

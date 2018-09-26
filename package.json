@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@types/react-redux": "^6.0.9",
+    "grommet": "^1.11.0",
     "parcel": "^1.9.7",
     "react": "^15.0.0 || ^16.0.0",
     "react-dom": "^16.5.2",
