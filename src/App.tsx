@@ -1,13 +1,19 @@
-import * as React from "react"
+// import * as React from "react"
 import { generateStore, simpleConnect } from "./store/store"
 import { Provider } from "react-redux"
 import { Devtool } from "./Devtool"
+// import { Button } from "reakit"
 
 const store = generateStore()
 
 const MainInner = (props) => {
   console.log(props)
-  return <div>hello</div>
+  return (
+    <div>
+      hello
+      <Button>Ping</Button>
+    </div>
+  )
 }
 
 const Main = simpleConnect(MainInner)
