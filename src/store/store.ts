@@ -1,6 +1,14 @@
-import { createStore, Reducer, combineReducers, compose } from "redux"
+import {
+  createStore,
+  Reducer,
+  combineReducers,
+  compose,
+  applyMiddleware
+} from "redux"
 import { connect } from "react-redux"
 import { Devtool } from "../Devtool"
+import { createEpicMiddleware } from "redux-observable"
+import { rootEpic } from "../epic/rootEpic"
 
 export const counterReducer: Reducer<number, any> = (state = 0, action) => {
   switch (action.type) {
@@ -11,12 +19,19 @@ export const counterReducer: Reducer<number, any> = (state = 0, action) => {
   }
   return state
 }
-const enhancer = compose(Devtool.instrument())
+
 export const generateStore = () => {
   const reducerMap = {
     counter: counterReducer
   }
-  return createStore(combineReducers(reducerMap), {}, enhancer)
+  const epicMiddleware = createEpicMiddleware()
+  const enhancer = compose(
+    applyMiddleware(epicMiddleware),
+    Devtool.instrument()
+  )
+  const store = createStore(combineReducers(reducerMap), enhancer)
+  epicMiddleware.run(rootEpic)
+  return store
 }
 
 export const simpleConnect = (Component) => {
