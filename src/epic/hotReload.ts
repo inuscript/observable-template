@@ -1,12 +1,12 @@
 import { Subject } from "rxjs"
 import { takeUntil } from "rxjs/operators"
 
-const disposer = new Subject()
+const hmrDisposer = new Subject()
 
-if (module.hot) {
-  module.hot.dispose((data) => {
-    disposer.next()
-  })
+export const registerDisposeHandler = (module) => {
+  if (module.hot) {
+    module.hot.dispose(() => hmrDisposer.next())
+  }
 }
 
-export const takeUntilHotReload = () => takeUntil(disposer)
+export const takeUntilHotReload = () => takeUntil(hmrDisposer)
