@@ -1,10 +1,7 @@
-import { ofType, combineEpics } from "redux-observable"
-import { mapTo } from "rxjs/operators"
-
-export const pingEpic = (action$) =>
-  action$.pipe(
-    ofType("PING"),
-    mapTo({ type: "PONG" })
-  )
+import { combineEpics } from "redux-observable"
+import { registerDisposeHandler } from "./hotReload"
+import { pingEpic } from "./pingEpic"
 
 export const rootEpic = combineEpics(pingEpic)
+
+registerDisposeHandler(module)
