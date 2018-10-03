@@ -13,14 +13,14 @@ import { rootEpic } from "../epic/rootEpic"
 const konamiReducer = (state = false, action) => {
   switch (action.type) {
     case "KONAMI_COMMAND":
-      return true
+      return action.payload
   }
   return state
 }
 const keyeventLog = (state = "", action) => {
   switch (action.type) {
-    case "KEY_EVENT":
-      return action.state
+    case "KEY_EVENTS":
+      return action.payload
   }
   return state
 }
