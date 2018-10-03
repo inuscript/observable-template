@@ -6,10 +6,12 @@ import {
   take,
   map,
   scan,
-  reduce
+  reduce,
+  bufferTime,
+  filter
 } from "rxjs/operators"
 import { fromEvent, Observable } from "rxjs"
-import { takeUntilHotReload } from "./observableStop"
+import { takeUntilHotReload } from "./hotReload"
 
 export const pingEpic = (action$) =>
   action$.pipe(
@@ -24,11 +26,36 @@ const debug = (tapFn = console.log) => <T>(source: Observable<T>) =>
     ignoreElements()
   )
 
-const konamiCommand = (action$) => {
+// const shoryukenCommand = (action$) => {
+//   return fromEvent(document, "keydown").pipe(
+//     takeUntilHotReload(),
+//     bufferTime(60),
+//     filter((item) => item.length > 0),
+//     scan<any>((a, b) => [...a, b], []),
+//     map((a) => {
+//       console.log(a)
+//     }),
+//     ignoreElements()
+//   )
+// }
+
+const konamiCommandEpic = (action$) => {
+  const command = [
+    "ArrowUp",
+    "ArrowUp",
+    "ArrowDown",
+    "ArrowDown",
+    "ArrowLeft",
+    "ArrowRight",
+    "ArrowLeft",
+    "ArrowRight",
+    "b",
+    "a"
+  ]
   return fromEvent(document, "keydown").pipe(
     takeUntilHotReload(),
-    // take(2),
-    scan<Event>((a, b) => [...a, b], []),
+    map(({ key }) => key), // pluckでも良い
+    scan((a, b) => [...a, b], []),
     map((a) => {
       console.log(a)
     }),
@@ -36,4 +63,4 @@ const konamiCommand = (action$) => {
   )
 }
 
-export const rootEpic = combineEpics(pingEpic, konamiCommand)
+export const rootEpic = combineEpics(pingEpic, konamiCommandEpic)
