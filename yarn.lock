@@ -4637,6 +4637,11 @@ repeating@^2.0.0:
   dependencies:
     is-finite "^1.0.0"
 
+reshake@^1.1.5:
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/reshake/-/reshake-1.1.5.tgz#d4817e63517ace0e4a23c6f05a657473b7516ba1"
+  integrity sha512-G+s+e/nY1ZaGGXijtTT40fY71yELg640JQ8nBRhTCn+K2Gg/ijGw4KKD3das50NaRThX698yIj8qLG4Yv1tXvw==
+
 resolve-pathname@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/resolve-pathname/-/resolve-pathname-2.2.0.tgz#7e9ae21ed815fd63ab189adeee64dc831eefa879"

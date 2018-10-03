@@ -2,34 +2,50 @@ import { fromEvent } from "rxjs"
 
 import { takeUntilHotReload } from "./hotReload"
 
-import { pluck, scan, map, filter, tap, ignoreElements } from "rxjs/operators"
+import {
+  pluck,
+  scan,
+  map,
+  filter,
+  tap,
+  ignoreElements,
+  mapTo
+} from "rxjs/operators"
 
-const command = [
-  "ArrowUp",
-  "ArrowUp",
-  "ArrowDown",
-  "ArrowDown",
-  "ArrowLeft",
-  "ArrowRight",
-  "ArrowLeft",
-  "ArrowRight",
-  "b",
-  "a"
-]
+const command = ["↑", "↑", "↓", "↓", "←", "→", "←", "→", "B", "A"]
+
+const visibleMap = {
+  ArrowUp: "↑",
+  ArrowDown: "↓",
+  ArrowLeft: "←",
+  ArrowRight: "→"
+}
+
+const convertVisible = (key) => {
+  if (key.length === 1) {
+    return key.toUpperCase()
+  }
+  if (visibleMap[key]) {
+    return visibleMap[key]
+  }
+  return false
+}
 
 export const konamiCommandEpic = () => {
   return fromEvent(document, "keydown").pipe(
     takeUntilHotReload(),
-    pluck("key"), // map(({ key }) => key),
-    scan<string>((curr, next) => [...curr, next], []),
-    map((cmd) => {
-      return cmd.slice(-1 * command.length)
-    }),
+    pluck("key"), // ==> map(({ key }) => key),
+    filter(convertVisible),
+    map(convertVisible),
+    scan((curr, next) => [...curr, next], []),
+    map((cmd) => cmd.slice(-1 * command.length)),
     filter((latestCmd) => {
       console.log(latestCmd)
       return command.join("") === latestCmd.join("")
     }),
     tap((_) => console.log("success!")),
-    ignoreElements()
+    mapTo({
+      type: "KONAMI_COMMAND"
+    })
   )
 }

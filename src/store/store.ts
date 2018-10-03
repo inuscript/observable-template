@@ -10,20 +10,23 @@ import { Devtool } from "../Devtool"
 import { createEpicMiddleware } from "redux-observable"
 import { rootEpic } from "../epic/rootEpic"
 
-export const counterReducer: Reducer<number, any> = (state = 0, action) => {
+const konamiReducer = (state = false, action) => {
   switch (action.type) {
-    case "INCREMENT":
-      return state + 1
-    case "DECREMENT":
-      return state - 1
+    case "KONAMI_COMMAND":
+      return true
+  }
+  return state
+}
+const keyeventLog = (state = "", action) => {
+  switch (action.type) {
+    case "KEY_EVENT":
+      return action.state
   }
   return state
 }
 
 export const generateStore = () => {
-  const reducerMap = {
-    counter: counterReducer
-  }
+  const reducerMap = { konami: konamiReducer, keyeventLog }
   const epicMiddleware = createEpicMiddleware()
   const enhancer = compose(
     applyMiddleware(epicMiddleware),
