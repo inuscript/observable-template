@@ -40,6 +40,7 @@ class App extends React.Component {
       <Provider store={store}>
         <div>
           <Main />
+          <Devtool />
         </div>
       </Provider>
     )
