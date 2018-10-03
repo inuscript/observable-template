@@ -1,24 +1,8 @@
-import { fromEvent, Observable, of, from, Subject, EMPTY, iif } from "rxjs"
+import { fromEvent, Observable, of, concat } from "rxjs"
 
 import { takeUntilHotReload } from "./hotReload"
 
-import {
-  pluck,
-  scan,
-  map,
-  filter,
-  tap,
-  ignoreElements,
-  mapTo,
-  mergeMap,
-  merge,
-  concat,
-  multicast,
-  share,
-  concatAll,
-  mergeAll,
-  combineAll
-} from "rxjs/operators"
+import { pluck, scan, map, filter, tap, mergeMap } from "rxjs/operators"
 
 const command = ["↑", "↑", "↓", "↓", "←", "→", "←", "→", "B", "A"]
 
@@ -48,27 +32,24 @@ const scanValidKeymap = () => (stream$): Observable<string[]> =>
     map((cmd: string[]) => cmd.slice(-1 * command.length))
   )
 
-const detectSuccess = (source$: Observable<string[]>) =>
-  source$.pipe(
-    map((latestCmd: string[]) => ({
-      type: "KONAMI_COMMAND",
-      payload: command.join("") === latestCmd.join("")
-    }))
-  )
+const detectSuccess = (latestCmd: string[]) => ({
+  type: "KONAMI_COMMAND",
+  payload: command.join("") === latestCmd.join("")
+})
+const detectSuccessEpic = (source$: Observable<string[]>) =>
+  source$.pipe(map(detectSuccess))
 
-const logging = (source$: Observable<string[]>) =>
-  source$.pipe(
-    map((cmd: string[]) => {
-      return { type: "KEY_EVENTS", payload: cmd.join(",") }
-    })
-  )
+const logging = (cmd: string[]) => {
+  return { type: "KEY_EVENTS", payload: cmd.join(",") }
+}
+const loggingEpic = (source$: Observable<string[]>) =>
+  source$.pipe(map(logging))
 
 export const konamiCommandEpic = () => {
   return fromEvent(document, "keydown").pipe(
     takeUntilHotReload(),
     scanValidKeymap(),
-    mergeMap((cmd) =>
-      EMPTY.pipe(merge(detectSuccess(of(cmd)), logging(of(cmd))))
-    )
+    mergeMap((cmd) => concat(of(logging(cmd)), of(detectSuccess(cmd))))
+    // map((a) => console.log(a))
   )
 }
