@@ -1,8 +1,6 @@
-import { fromEvent, Observable, of, concat } from "rxjs"
+import { fromEvent } from "rxjs"
 
-import { takeUntilHotReload } from "./hotReload"
-
-import { pluck, scan, map, filter, tap, mergeMap } from "rxjs/operators"
+import { pluck, scan, map, filter, tap } from "rxjs/operators"
 
 const command = ["↑", "↑", "↓", "↓", "←", "→", "←", "→", "B", "A"]
 
@@ -23,33 +21,17 @@ const convertVisible = (key) => {
   return false
 }
 
-const scanValidKeymap = () => (stream$): Observable<string[]> =>
-  stream$.pipe(
-    pluck("key"),
-    filter(convertVisible),
-    map(convertVisible),
-    scan<string>((curr, next) => [...curr, next], []),
-    map((cmd: string[]) => cmd.slice(-1 * command.length))
-  )
-
-const detectSuccess = (latestCmd: string[]) => ({
-  type: "KONAMI_COMMAND",
-  payload: command.join("") === latestCmd.join("")
-})
-const detectSuccessEpic = (source$: Observable<string[]>) =>
-  source$.pipe(map(detectSuccess))
-
-const logging = (cmd: string[]) => {
-  return { type: "KEY_EVENTS", payload: cmd.join(",") }
-}
-const loggingEpic = (source$: Observable<string[]>) =>
-  source$.pipe(map(logging))
-
 export const konamiCommandEpic = () => {
   return fromEvent(document, "keydown").pipe(
-    takeUntilHotReload(),
-    scanValidKeymap(),
-    mergeMap((cmd) => concat(of(logging(cmd)), of(detectSuccess(cmd))))
-    // map((a) => console.log(a))
+    pluck("key"), // map(({key}) => key) といっしょ
+    map(convertVisible), // 十字キーを変換
+    filter((value) => value), // falseになっている値は除外
+    scan((curr, next) => [...curr, next], []), // 配列化
+    map((cmd) => cmd.slice(-1 * command.length)), // 後ろからコマンド数で取得
+    tap(console.log), // ログ見る
+    map((latestCmd) => ({
+      type: "KONAMI_COMMAND",
+      payload: command.join("") === latestCmd.join("") // コナミコマンドの成否判定
+    }))
   )
 }

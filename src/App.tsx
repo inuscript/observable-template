@@ -24,12 +24,7 @@ const Konami = () => {
   )
 }
 const MainInner = (props) => {
-  return (
-    <div>
-      <div>{props.keyeventLog}</div>
-      {props.konami ? <Konami /> : "please key type"}
-    </div>
-  )
+  return <div>{props.konami ? <Konami /> : "please key type"}</div>
 }
 
 const Main = simpleConnect(MainInner)
