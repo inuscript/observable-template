@@ -2,7 +2,7 @@
 import { generateStore, simpleConnect } from "./store/store"
 import { Provider } from "react-redux"
 import { Devtool } from "./Devtool"
-import * as React from "react"
+import React from "react"
 import { Shake } from "reshake"
 const store = generateStore()
 
@@ -23,14 +23,16 @@ const Konami = () => {
     </Shake>
   )
 }
-const MainInner = (props) => {
-  return <div>{props.konami ? <Konami /> : "please key type"}</div>
+const MainInner = ({ konami, keyeventLog }) => {
+  return (
+    <div>{konami ? <Konami /> : <div>please key type: {keyeventLog}</div>}</div>
+  )
 }
 
 const Main = simpleConnect(MainInner)
 
 class App extends React.Component {
-  public render() {
+  render() {
     return (
       <Provider store={store}>
         <div>

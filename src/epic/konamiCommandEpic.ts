@@ -19,32 +19,35 @@ const convertVisible = (key) => {
   if (visibleMap[key]) {
     return visibleMap[key]
   }
-  return false
+  return null
 }
 
 const keyEventEpic = () => {
-  return fromEvent(document, "keydown") // 正式な作法としてはReact側でkeydonw eventを発火させるべきかも
-    .pipe(
-      map((e) => ({
-        type: "KEY_EVENT",
-        event: e
-      }))
-    )
+  // 正式な作法としてはReact側でkeydonw eventを発火させるべきかも?
+  return fromEvent(document, "keydown").pipe(
+    pluck("key"), // これはmap(({key}) => key) といっしょ
+    map(convertVisible), // 対象となるキーに変換。それ以外の場合はnullに
+    filter((value) => !!value), // nullの場合は除外
+    map((e) => {
+      // KEY_EVENT actionを返す
+      return { type: "KEY_EVENT", payload: e }
+    })
+  )
 }
 
 const commandEpic = (action$) => {
   return action$.pipe(
-    ofType("KEY_EVENT"),
-    pluck("key"), // map(({key}) => key) といっしょ
-    map(convertVisible), // 十字キーを変換
-    filter((value) => !!value), // falseになっている値は除外
+    ofType("KEY_EVENT"), // KEY_EVENT actionが発火したら動く
+    pluck("payload"), // 同上、map(({payload}) => payload) といっしょ
     scan((curr, next) => [...curr, next], []), // 配列化
-    map((cmd: string[]) => cmd.slice(-1 * command.length)), // 後ろからコマンド数で取得
-    tap(console.log), // ログ見る
-    map((latestCmd: string[]) => ({
-      type: "KONAMI_COMMAND",
-      payload: command.join("") === latestCmd.join("") // コナミコマンドの成否判定
-    }))
+    map((cmd: string[]) => {
+      console.log(cmd)
+      const latestCmd = cmd.slice(-1 * command.length) // 後ろから10個だけにする
+      return {
+        type: "KONAMI_COMMAND",
+        payload: command.join("") === latestCmd.join("") // コナミコマンドの成否判定
+      }
+    })
   )
 }
 

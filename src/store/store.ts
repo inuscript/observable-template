@@ -19,7 +19,7 @@ const konamiReducer = (state = false, action) => {
 }
 const keyeventLog = (state = "", action) => {
   switch (action.type) {
-    case "KEY_EVENTS":
+    case "KEY_EVENT":
       return action.payload
   }
   return state
