@@ -10,7 +10,7 @@ const Konami = () => {
   return (
     <Shake
       h={74}
-      v={100}
+      v={80}
       r={0}
       dur={130}
       int={6.3}
