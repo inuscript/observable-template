@@ -2,7 +2,7 @@ import { fromEvent, Observable, concat } from "rxjs"
 
 import { takeUntilHotReload } from "./hotReload"
 
-import { pluck, scan, map, filter } from "rxjs/operators"
+import { pluck, scan, map, filter, publish, tap } from "rxjs/operators"
 
 const command = ["↑", "↑", "↓", "↓", "←", "→", "←", "→", "B", "A"]
 
@@ -37,13 +37,19 @@ const loggingEpic = (source$: Observable<string[]>) =>
   source$.pipe(map(logging))
 
 export const konamiCommandEpic = () => {
-  const stream$ = fromEvent(document, "keydown").pipe(
+  const source = fromEvent(document, "keydown")
+  const ex = source.pipe(
     takeUntilHotReload(),
     pluck("key"),
     filter(convertVisible),
     map(convertVisible),
     scan<string>((curr, next) => [...curr, next], []),
-    map((cmd: string[]) => cmd.slice(-1 * command.length))
+    map((cmd: string[]) => cmd.slice(-1 * command.length)),
+    publish()
   )
-  return concat(stream$.pipe(map(detectSuccess)), stream$.pipe(map(logging)))
+  const subscribe = ex.pipe(tap((i) => console.log("sub 1", i)))
+  // @ts-ignore
+  ex.connect()
+  return source
+  // return concat(stream$.pipe(map(detectSuccess)), stream$.pipe(map(logging)))
 }
