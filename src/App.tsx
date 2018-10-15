@@ -6,11 +6,15 @@ import * as React from "react"
 
 const store = generateStore()
 
+const Button = ({ dispatch }) => (
+  <button onClick={(e) => dispatch({ type: "PING" })}>Ping</button>
+)
+
 const MainInner = (props) => {
   return (
     <div>
       hello
-      <button>Ping</button>
+      <Button {...props} />
     </div>
   )
 }
