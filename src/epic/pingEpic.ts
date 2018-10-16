@@ -1,6 +1,7 @@
 import { ofType, combineEpics } from "redux-observable"
 import { ignoreElements, tap, map } from "rxjs/operators"
-export const debug = () => (source) =>
+
+const debug = () => (source) =>
   source.pipe(
     tap(console.log),
     ignoreElements()
@@ -22,7 +23,7 @@ const firstEpic = (action$) =>
     ofType("TEMP_PING"),
     map((action: any) => ({
       type: "PONG",
-      payload: action.payload
+      payload: action.payload * 3
     }))
   )
 
@@ -31,8 +32,8 @@ const secondEpic = (action$) =>
     ofType("TEMP_PING"),
     map((action: any) => ({
       type: "PUNG",
-      payload: action.payload
+      payload: action.payload * 4
     }))
   )
 
-export const pingEpic = combineEpics(seedEpic, firstEpic, secondEpic)
+export const pingEpic = combineEpics(debug(), seedEpic, firstEpic, secondEpic)
