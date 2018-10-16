@@ -1,5 +1,5 @@
 import { ofType, combineEpics } from "redux-observable"
-import { ignoreElements, tap, map, mergeMap, partition } from "rxjs/operators"
+import { ignoreElements, tap, map, mergeMap, partition, auditTime, bufferTime, filter } from "rxjs/operators"
 import { merge, concat, of } from "rxjs";
 
 const debug = () => (source) =>
@@ -53,22 +53,25 @@ const tripleFromSource = (source$) =>
   )
 
 export const pingEpic = (action$) => {
-  const [even, odd] = action$.pipe(
+  const source$ = action$.pipe(
     ofType("PING"),
-    partition((action: any) => action.payload % 2 === 0)
   )
   return merge(
-    even.pipe(
+    source$.pipe( // こっちはLOG出力だけ
       map((action: any) => ({
-        type: "PONG",
-        payload: action.payload * 2
+        type: "LOG",
+        payload: action.payload
       })),
     ),
-    odd.pipe(
-      map((action: any) => ({
-        type: "PUNG",
-        payload: action.payload * 3
-      }))
+    source$.pipe(
+      bufferTime(1000), // 連打
+      filter((items: any[]) => items.length > 0),
+      map((actions: any[]) => { // 受け取ったactionが配列になる
+        return {
+          type: "MASH",
+          payload: actions.length
+        }
+      })
     )
   )
 }
