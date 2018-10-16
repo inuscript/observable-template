@@ -7,7 +7,7 @@ import * as React from "react"
 const store = generateStore()
 
 const Button = ({ dispatch }) => (
-  <button onClick={(e) => dispatch({ type: "PING", payload: 2 })}>Ping</button>
+  <button onClick={(e) => dispatch({ type: "PING", payload: 3 })}>Ping</button>
 )
 
 const MainInner = (props) => {
