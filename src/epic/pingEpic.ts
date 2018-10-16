@@ -1,6 +1,6 @@
 import { ofType, combineEpics } from "redux-observable"
 import { ignoreElements, tap, map, mergeMap, partition, auditTime, bufferTime, filter } from "rxjs/operators"
-import { merge, concat, of } from "rxjs";
+import { merge, concat, of, Subject } from "rxjs";
 
 const debug = () => (source) =>
   source.pipe(
@@ -52,26 +52,24 @@ const tripleFromSource = (source$) =>
     }))
   )
 
-export const pingEpic = (action$) => {
-  const source$ = action$.pipe(
+const logSubject = new Subject()
+
+const mainEpic = (action$) => {
+  return action$.pipe(
     ofType("PING"),
-  )
-  return merge(
-    source$.pipe( // こっちはLOG出力だけ
-      map((action: any) => ({
-        type: "LOG",
-        payload: action.payload
-      })),
-    ),
-    source$.pipe(
-      bufferTime(1000), // 連打
-      filter((items: any[]) => items.length > 0),
-      map((actions: any[]) => { // 受け取ったactionが配列になる
-        return {
-          type: "MASH",
-          payload: actions.length
-        }
-      })
-    )
+    tap((action: any) => logSubject.next({ type: "LOG", payload: action.payload })),
+    bufferTime(500), // 連打
+    filter((items: any[]) => items.length > 0),
+    map((actions: any[]) => { // 受け取ったactionが配列になる
+      return {
+        type: "MASH",
+        payload: actions.length
+      }
+    }),
   )
 }
+const logEpic = (action$) => {
+  return logSubject.asObservable()
+}
+
+export const pingEpic = combineEpics(mainEpic, logEpic)
